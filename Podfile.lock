@@ -1,9 +1,20 @@
 PODS:
+<<<<<<< HEAD
   - CocoaLumberjack (2.0.0-beta3):
     - CocoaLumberjack/Default
     - CocoaLumberjack/Extensions
   - CocoaLumberjack/Core (2.0.0-beta3)
   - CocoaLumberjack/Default (2.0.0-beta3):
+=======
+  - CocoaLumberjack (2.0.0-beta2):
+    - CocoaLumberjack/CLI
+    - CocoaLumberjack/Core
+    - CocoaLumberjack/Extensions
+  - CocoaLumberjack/CLI (2.0.0-beta2):
+    - CocoaLumberjack/Core
+  - CocoaLumberjack/Core (2.0.0-beta2)
+  - CocoaLumberjack/Extensions (2.0.0-beta2):
+>>>>>>> upstream/master
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.0.0-beta3):
     - CocoaLumberjack/Default
@@ -12,6 +23,12 @@ DEPENDENCIES:
   - CocoaLumberjack
 
 SPEC CHECKSUMS:
+<<<<<<< HEAD
   CocoaLumberjack: 55c22a2b8bde7a29c568ab4015b5874216524d70
 
 COCOAPODS: 0.34.2
+=======
+  CocoaLumberjack: 956d3fb98fed498a13d56499f262c975ef431c98
+
+COCOAPODS: 0.34.4
+>>>>>>> upstream/master
