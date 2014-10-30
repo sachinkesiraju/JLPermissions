@@ -702,7 +702,7 @@ clickedButtonAtIndex:(NSInteger)buttonIndex {
             self.microphoneCompletionHandler(false, error);
             break;
         case kHealthTag:
-            self.healthCompletionHandler(false, error);
+            self.healthCompletionHandler(false, error); 
             break;
         case kLocationsTag:
             self.locationsCompletionHandler(false, error);
