@@ -52,8 +52,6 @@
       authorizationText:[[JLPermissions sharedInstance] facebookAuthorized]];
   self.microphoneLabel.text = [self
       authorizationText:[[JLPermissions sharedInstance] microphoneAuthorized]];
-  self.healthLabel.text = [self
-      authorizationText:[[JLPermissions sharedInstance] healthAuthorized]];
 }
 
 - (NSString *)authorizationText:(BOOL)enabled {
@@ -103,13 +101,6 @@
   [[JLPermissions sharedInstance]
       authorizeMicrophone:^(bool granted, NSError *error) {
           NSLog(@"microphone returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
-}
-- (IBAction)health:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeHealth:^(bool granted, NSError *error) {
-          NSLog(@"health returned %@ with error %@", @(granted), error);
           [self updateStatusLabels];
       }];
 }

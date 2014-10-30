@@ -14,7 +14,6 @@
 @import AVFoundation;
 @import CoreLocation;
 @import EventKit;
-@import HealthKit;
 
 @interface JLPermissions () <UIAlertViewDelegate, CLLocationManagerDelegate>
 
@@ -23,7 +22,6 @@
 @property(nonatomic, strong) AuthorizationBlock photosCompletionHandler;
 @property(nonatomic, strong) AuthorizationBlock remindersCompletionHandler;
 @property(nonatomic, strong) AuthorizationBlock microphoneCompletionHandler;
-@property(nonatomic, strong) AuthorizationBlock healthCompletionHandler;
 @property(nonatomic, strong) AuthorizationBlock locationsCompletionHandler;
 @property(nonatomic, strong) AuthorizationBlock twitterCompletionHandler;
 @property(nonatomic, strong) AuthorizationBlock facebookCompletionHandler;
@@ -31,8 +29,6 @@
     NotificationAuthorizationBlock notificationsCompletionHandler;
 
 @property(nonatomic, strong) CLLocationManager *locationManager;
-@property(nonatomic, strong) NSSet *healthReadTypes;
-@property(nonatomic, strong) NSSet *healthWriteTypes;
 
 @end
 
@@ -49,7 +45,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
   kCalendarTag,
   kRemindersTag,
   kMicrophoneTag,
-  kHealthTag,
   kTwitterTag,
   kFacebookTag,
   kLocationsTag
@@ -322,87 +317,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
 
 - (void)displayMicrophoneErrorDialog {
   [self displayErrorDialog:@"Microphone"];
-}
-
-#pragma mark - Health
-
-- (BOOL)healthAuthorized {
-  HKHealthStore *healthStore = [[HKHealthStore alloc] init];
-  NSMutableSet *allTypes = [NSMutableSet set];
-  if (self.healthReadTypes.count) {
-    [allTypes unionSet:self.healthReadTypes];
-  }
-
-  if (self.healthWriteTypes.count) {
-    [allTypes unionSet:self.healthWriteTypes];
-  }
-
-  BOOL hasAuthorized = NO;
-  for (HKObjectType *sampleType in allTypes) {
-    HKAuthorizationStatus status =
-        [healthStore authorizationStatusForType:sampleType];
-    switch (status) {
-      case HKAuthorizationStatusSharingDenied:
-      case HKAuthorizationStatusNotDetermined:
-        return NO;
-      case HKAuthorizationStatusSharingAuthorized: {
-        hasAuthorized = YES;
-      }
-    }
-  }
-  return hasAuthorized;
-}
-
-- (void)authorizeHealth:(AuthorizationBlock)completionHandler {
-  [self authorizeHealthWithTitle:[self defaultTitle:@"Health"]
-                         message:[self defaultMessage]
-                     cancelTitle:[self defaultCancelTitle]
-                      grantTitle:[self defaultGrantTitle]
-               completionHandler:completionHandler];
-}
-
-- (void)authorizeHealthWithTitle:(NSString *)messageTitle
-                         message:(NSString *)message
-                     cancelTitle:(NSString *)cancelTitle
-                      grantTitle:(NSString *)grantTitle
-               completionHandler:(AuthorizationBlock)completionHandler {
-  NSMutableSet *allTypes = [[NSMutableSet alloc] init];
-  if (self.healthReadTypes.count) {
-    [allTypes unionSet:self.healthReadTypes];
-  }
-
-  if (self.healthWriteTypes.count) {
-    [allTypes unionSet:self.healthWriteTypes];
-  }
-
-  HKHealthStore *healthStore = [[HKHealthStore alloc] init];
-  for (HKObjectType *healthType in allTypes) {
-    HKAuthorizationStatus status =
-        [healthStore authorizationStatusForType:healthType];
-    switch (status) {
-      case HKAuthorizationStatusNotDetermined: {
-        self.healthCompletionHandler = completionHandler;
-        UIAlertView *alert =
-            [[UIAlertView alloc] initWithTitle:messageTitle
-                                       message:message
-                                      delegate:self
-                             cancelButtonTitle:cancelTitle
-                             otherButtonTitles:grantTitle, nil];
-        alert.tag = kHealthTag;
-        [alert show];
-      } break;
-      case HKAuthorizationStatusSharingAuthorized: {
-        completionHandler(true, nil);
-      } break;
-      case HKAuthorizationStatusSharingDenied: {
-        completionHandler(false, [self previouslyDeniedError]);
-      } break;
-    }
-  }
-}
-
-- (void)displayHealthErrorDialog {
-  [self displayErrorDialog:@"Health"];
 }
 
 #pragma mark - Locations
@@ -679,43 +593,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
 #pragma mark - Helpers
 
 - (void)canceledDialog:(NSInteger)tag {
-<<<<<<< HEAD
-    NSError *error = [NSError errorWithDomain:@"UserDenied"
-                                         code:kJLPermissionDenied
-                                     userInfo:nil];
-    switch (tag) {
-        case kContactsTag:
-            self.contactsCompletionHandler(false, error);
-            break;
-        case kPhotosTag:
-            self.photosCompletionHandler(false, error);
-            break;
-        case kNotificationsTag:
-            self.notificationsCompletionHandler(false, error);
-            break;
-        case kCalendarTag:
-            self.calendarCompletionHandler(false, error);
-            break;
-        case kRemindersTag:
-            self.remindersCompletionHandler(false, error);
-            break;
-        case kMicrophoneTag:
-            self.microphoneCompletionHandler(false, error);
-            break;
-        case kHealthTag:
-            self.healthCompletionHandler(false, error); 
-            break;
-        case kLocationsTag:
-            self.locationsCompletionHandler(false, error);
-            break;
-        case kTwitterTag:
-            self.twitterCompletionHandler(false, error);
-            break;
-        case kFacebookTag:
-            self.facebookCompletionHandler(false, error);
-            break;
-    }
-=======
   NSError *error = [NSError errorWithDomain:@"UserDenied"
                                        code:kJLPermissionDenied
                                    userInfo:nil];
@@ -738,9 +615,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
     case kMicrophoneTag:
       self.microphoneCompletionHandler(false, error);
       break;
-    case kHealthTag:
-      self.healthCompletionHandler(false, error);
-      break;
     case kLocationsTag:
       self.locationsCompletionHandler(false, error);
       break;
@@ -751,7 +625,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
       self.facebookCompletionHandler(false, error);
       break;
   }
->>>>>>> upstream/master
 }
 
 - (void)approvedDialog:(NSInteger)tag {
@@ -773,9 +646,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
       break;
     case kMicrophoneTag:
       [self actuallyAuthorizeMicrophone];
-      break;
-    case kHealthTag:
-      [self actuallyAuthorizeHealth];
       break;
     case kLocationsTag:
       [self actuallyAuthorizeLocations];
@@ -994,21 +864,6 @@ typedef NS_ENUM(NSInteger, JLAuthorizationTags) {
         self.microphoneCompletionHandler(false, nil);
       }
   }];
-}
-
-- (void)actuallyAuthorizeHealth {
-  HKHealthStore *healthStore = [[HKHealthStore alloc] init];
-  [healthStore
-      requestAuthorizationToShareTypes:self.healthWriteTypes
-                             readTypes:self.healthReadTypes
-                            completion:^(BOOL success, NSError *error) {
-                                if (success) {
-                                  self.healthCompletionHandler(true, nil);
-                                } else {
-                                  self.healthCompletionHandler(false, error);
-                                }
-
-                            }];
 }
 
 - (void)actuallyAuthorizeLocations {
