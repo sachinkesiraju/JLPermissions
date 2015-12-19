@@ -1,5 +1,6 @@
 PODS:
 <<<<<<< HEAD
+<<<<<<< HEAD
   - CocoaLumberjack (2.0.0-beta3):
     - CocoaLumberjack/Default
     - CocoaLumberjack/Extensions
@@ -18,11 +19,24 @@ PODS:
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.0.0-beta3):
     - CocoaLumberjack/Default
+=======
+  - CocoaLumberjack (2.2.0):
+    - CocoaLumberjack/Default (= 2.2.0)
+    - CocoaLumberjack/Extensions (= 2.2.0)
+  - CocoaLumberjack/Core (2.2.0)
+  - CocoaLumberjack/Default (2.2.0):
+    - CocoaLumberjack/Core
+  - CocoaLumberjack/Extensions (2.2.0):
+    - CocoaLumberjack/Default
+  - DBPrivacyHelper (0.6.3)
+>>>>>>> jlaws/master
 
 DEPENDENCIES:
   - CocoaLumberjack
+  - DBPrivacyHelper (= 0.6.3)
 
 SPEC CHECKSUMS:
+<<<<<<< HEAD
 <<<<<<< HEAD
   CocoaLumberjack: 55c22a2b8bde7a29c568ab4015b5874216524d70
 
@@ -32,3 +46,9 @@ COCOAPODS: 0.34.2
 
 COCOAPODS: 0.34.4
 >>>>>>> upstream/master
+=======
+  CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
+  DBPrivacyHelper: c1e033776454dd3e16e8dcedf2e92d4d0a5e56df
+
+COCOAPODS: 0.39.0
+>>>>>>> jlaws/master

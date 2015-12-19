@@ -7,7 +7,18 @@
 //
 
 #import "JLViewController.h"
-#import "JLPermissions.h"
+
+#import "JLCalendarPermission.h"
+#import "JLCameraPermission.h"
+#import "JLContactsPermission.h"
+#import "JLFacebookPermission.h"
+#import "JLHealthPermission.h"
+#import "JLLocationPermission.h"
+#import "JLMicrophonePermission.h"
+#import "JLNotificationPermission.h"
+#import "JLPhotosPermission.h"
+#import "JLRemindersPermission.h"
+#import "JLTwitterPermission.h"
 
 @interface JLViewController ()
 
@@ -21,6 +32,9 @@
 @property(strong, nonatomic) IBOutlet UILabel *facebookLabel;
 @property(strong, nonatomic) IBOutlet UILabel *microphoneLabel;
 @property(strong, nonatomic) IBOutlet UILabel *healthLabel;
+@property(strong, nonatomic) IBOutlet UILabel *cameraLabel;
+
+@property(strong, nonatomic) IBOutlet UISwitch *showExtraAlertSwitch;
 
 @end
 
@@ -33,9 +47,10 @@
 }
 
 - (void)updateStatusLabels {
-  self.calendarLabel.text = [self
-      authorizationText:[[JLPermissions sharedInstance] calendarAuthorized]];
+  self.calendarLabel.text =
+      [self authorizationText:[[JLCalendarPermission sharedInstance] authorizationStatus]];
   self.pushNotificationLabel.text =
+<<<<<<< HEAD
       [self authorizationText:
                 [[JLPermissions sharedInstance] notificationsAuthorized]];
   self.addressBookLabel.text = [self
@@ -52,81 +67,172 @@
       authorizationText:[[JLPermissions sharedInstance] facebookAuthorized]];
   self.microphoneLabel.text = [self
       authorizationText:[[JLPermissions sharedInstance] microphoneAuthorized]];
+=======
+      [self authorizationText:[[JLNotificationPermission sharedInstance] authorizationStatus]];
+  self.addressBookLabel.text =
+      [self authorizationText:[[JLContactsPermission sharedInstance] authorizationStatus]];
+  self.photoLibraryLabel.text =
+      [self authorizationText:[[JLPhotosPermission sharedInstance] authorizationStatus]];
+  self.remindersLabel.text =
+      [self authorizationText:[[JLRemindersPermission sharedInstance] authorizationStatus]];
+  self.locationsLabel.text =
+      [self authorizationText:[[JLLocationPermission sharedInstance] authorizationStatus]];
+  self.twitterLabel.text =
+      [self authorizationText:[[JLTwitterPermission sharedInstance] authorizationStatus]];
+  self.facebookLabel.text =
+      [self authorizationText:[[JLFacebookPermission sharedInstance] authorizationStatus]];
+  self.microphoneLabel.text =
+      [self authorizationText:[[JLMicrophonePermission sharedInstance] authorizationStatus]];
+  self.healthLabel.text =
+      [self authorizationText:[[JLHealthPermission sharedInstance] authorizationStatus]];
+  self.cameraLabel.text =
+      [self authorizationText:[[JLCameraPermission sharedInstance] authorizationStatus]];
+>>>>>>> jlaws/master
 }
 
-- (NSString *)authorizationText:(BOOL)enabled {
-  return (enabled) ? @"Enabled" : @"Disabled";
+- (NSString *)authorizationText:(JLAuthorizationStatus)status {
+  switch (status) {
+    case JLPermissionNotDetermined:
+      return @"Unknown";
+      break;
+    case JLPermissionDenied:
+      return @"Denied";
+      break;
+    case JLPermissionAuthorized:
+      return @"Authorized";
+      break;
+    default:
+      return @"";
+      break;
+  }
 }
 
 - (IBAction)pushNotifications:(id)sender {
-  [[JLPermissions sharedInstance] authorizeNotifications:^(NSString *deviceID,
-                                                           NSError *error) {
-      NSLog(@"pushNotifications returned %@ with error %@", deviceID, error);
-      [self updateStatusLabels];
+  [[JLNotificationPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLNotificationPermission sharedInstance] authorize:^(NSString *deviceID, NSError *error) {
+    NSLog(@"pushNotifications returned %@ with error %@", deviceID, error);
+    [self updateStatusLabels];
   }];
 }
 
 - (IBAction)contacts:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeContacts:^(bool granted, NSError *error) {
-          NSLog(@"contacts returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLContactsPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLContactsPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"contacts returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLContactsPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
 }
 
 - (IBAction)photoLibrary:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizePhotos:^(bool granted, NSError *error) {
-          NSLog(@"photoLibrary returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLPhotosPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLPhotosPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"photoLibrary returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLPhotosPermission sharedInstance] granted:granted error:error];
+    [self updateStatusLabels];
+  }];
 }
 
 - (IBAction)calendar:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeCalendar:^(bool granted, NSError *error) {
-          NSLog(@"calendar returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLCalendarPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLCalendarPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"calendar returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLCalendarPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
 }
 
 - (IBAction)reminders:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeReminders:^(bool granted, NSError *error) {
-          NSLog(@"reminders returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
-}
-- (IBAction)microphone:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeMicrophone:^(bool granted, NSError *error) {
-          NSLog(@"microphone returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLRemindersPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLRemindersPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"reminders returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLRemindersPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
 }
 
+- (IBAction)microphone:(id)sender {
+  [[JLMicrophonePermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLMicrophonePermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"microphone returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLMicrophonePermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
+}
+<<<<<<< HEAD
+=======
+
+- (IBAction)health:(id)sender {
+  [[JLHealthPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLHealthPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"health returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLHealthPermission sharedInstance] granted:granted error:error];
+    [self updateStatusLabels];
+  }];
+}
+>>>>>>> jlaws/master
+
 - (IBAction)locations:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeLocations:^(bool granted, NSError *error) {
-          NSLog(@"locations returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLLocationPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLLocationPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"locations returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLLocationPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
 }
 
 - (IBAction)twitter:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeTwitter:^(bool granted, NSError *error) {
-          NSLog(@"twitter returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLTwitterPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLTwitterPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"twitter returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLTwitterPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
 }
 
 - (IBAction)facebook:(id)sender {
-  [[JLPermissions sharedInstance]
-      authorizeFacebook:^(bool granted, NSError *error) {
-          NSLog(@"facebook returned %@ with error %@", @(granted), error);
-          [self updateStatusLabels];
-      }];
+  [[JLFacebookPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLFacebookPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"facebook returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLFacebookPermission sharedInstance]
+                           granted:granted
+                             error:error];
+    [self updateStatusLabels];
+  }];
+}
+
+- (IBAction)camera:(id)sender {
+  [[JLCameraPermission sharedInstance] setExtraAlertEnabled:self.showExtraAlertSwitch.on];
+  [[JLCameraPermission sharedInstance] authorize:^(bool granted, NSError *error) {
+    NSLog(@"camera returned %@ with error %@", @(granted), error);
+    [self presentReenableVCForCore:[JLCameraPermission sharedInstance] granted:granted error:error];
+    [self updateStatusLabels];
+  }];
+}
+
+- (void)presentReenableVCForCore:(JLPermissionsCore *)core
+                         granted:(BOOL)granted
+                           error:(NSError *)error {
+  if (!granted && error.code == JLPermissionSystemDenied) {
+    UIViewController *vc = [core reenableViewController];
+    if (vc) {
+      [self presentViewController:vc animated:YES completion:nil];
+    } else {
+      [core displayReenableAlert];
+    }
+  }
 }
 
 @end
